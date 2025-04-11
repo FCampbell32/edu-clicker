@@ -1,21 +1,20 @@
 {
-  "name": "my-webapp",
-  "version": "1.0.0",
-  "description": "A simple web app with a nice landing page using Tailwind CSS.",
-  "main": "src/assets/index.js",
-  "scripts": {
-    "build": "postcss src/styles/main.css -o src/styles/output.css",
-    "start": "live-server src",
-    "dev": "live-server src --watch=src"
-  },
-  "author": "Your Name",
-  "license": "MIT",
+  "name": "edu-clicker",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "tailwindcss": "^2.2.19",
-    "postcss": "^8.4.5",
-    "live-server": "^1.2.1"
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.2"
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.2"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   }
 }
