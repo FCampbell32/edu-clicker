@@ -1,0 +1,330 @@
+{
+  "title": "Number Systems Practice",
+  "description": "Practice converting between binary, decimal, and hexadecimal numbers",
+  "questions": [
+    {
+      "question": "Convert binary 1010 to decimal",
+      "correctAnswer": "10",
+      "options": ["8", "10", "12", "14"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1111 to decimal",
+      "correctAnswer": "15",
+      "options": ["13", "14", "15", "16"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0111 to decimal",
+      "correctAnswer": "7",
+      "options": ["5", "6", "7", "8"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 13 to binary",
+      "correctAnswer": "1101",
+      "options": ["1011", "1101", "1110", "1111"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 9 to binary",
+      "correctAnswer": "1001",
+      "options": ["1000", "1001", "1010", "1011"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1100 to hexadecimal",
+      "correctAnswer": "C",
+      "options": ["A", "B", "C", "D"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1010 to hexadecimal",
+      "correctAnswer": "A",
+      "options": ["8", "9", "A", "B"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 6 to binary",
+      "correctAnswer": "0110",
+      "options": ["0101", "0110", "0111", "1000"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0011 to decimal",
+      "correctAnswer": "3",
+      "options": ["2", "3", "4", "5"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 12 to binary",
+      "correctAnswer": "1100",
+      "options": ["1010", "1011", "1100", "1101"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1110 to decimal",
+      "correctAnswer": "14",
+      "options": ["12", "13", "14", "15"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0101 to decimal",
+      "correctAnswer": "5",
+      "options": ["3", "4", "5", "6"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 7 to binary",
+      "correctAnswer": "0111",
+      "options": ["0110", "0111", "1000", "1001"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1011 to hexadecimal",
+      "correctAnswer": "B",
+      "options": ["9", "A", "B", "C"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1111 to hexadecimal",
+      "correctAnswer": "F",
+      "options": ["D", "E", "F", "10"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 15 to binary",
+      "correctAnswer": "1111",
+      "options": ["1101", "1110", "1111", "10000"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0001 to decimal",
+      "correctAnswer": "1",
+      "options": ["0", "1", "2", "3"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 8 to binary",
+      "correctAnswer": "1000",
+      "options": ["0111", "1000", "1001", "1010"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1000 to decimal",
+      "correctAnswer": "8",
+      "options": ["6", "7", "8", "9"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0100 to decimal",
+      "correctAnswer": "4",
+      "options": ["2", "3", "4", "5"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 11 to binary",
+      "correctAnswer": "1011",
+      "options": ["1001", "1010", "1011", "1100"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1101 to hexadecimal",
+      "correctAnswer": "D",
+      "options": ["B", "C", "D", "E"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0110 to decimal",
+      "correctAnswer": "6",
+      "options": ["4", "5", "6", "7"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 14 to binary",
+      "correctAnswer": "1110",
+      "options": ["1100", "1101", "1110", "1111"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1001 to decimal",
+      "correctAnswer": "9",
+      "options": ["7", "8", "9", "10"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 10 to binary",
+      "correctAnswer": "1010",
+      "options": ["1000", "1001", "1010", "1011"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0010 to decimal",
+      "correctAnswer": "2",
+      "options": ["0", "1", "2", "3"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1110 to hexadecimal",
+      "correctAnswer": "E",
+      "options": ["C", "D", "E", "F"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 5 to binary",
+      "correctAnswer": "0101",
+      "options": ["0011", "0100", "0101", "0110"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0111 to hexadecimal",
+      "correctAnswer": "7",
+      "options": ["5", "6", "7", "8"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 4 to binary",
+      "correctAnswer": "0100",
+      "options": ["0010", "0011", "0100", "0101"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1010 to decimal",
+      "correctAnswer": "10",
+      "options": ["8", "9", "10", "11"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 3 to binary",
+      "correctAnswer": "0011",
+      "options": ["0001", "0010", "0011", "0100"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0011 to hexadecimal",
+      "correctAnswer": "3",
+      "options": ["1", "2", "3", "4"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 2 to binary",
+      "correctAnswer": "0010",
+      "options": ["0000", "0001", "0010", "0011"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0101 to hexadecimal",
+      "correctAnswer": "5",
+      "options": ["3", "4", "5", "6"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert decimal 1 to binary",
+      "correctAnswer": "0001",
+      "options": ["0000", "0001", "0010", "0011"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0001 to hexadecimal",
+      "correctAnswer": "1",
+      "options": ["0", "1", "2", "3"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0100 to hexadecimal",
+      "correctAnswer": "4",
+      "options": ["2", "3", "4", "5"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1000 to hexadecimal",
+      "correctAnswer": "8",
+      "options": ["6", "7", "8", "9"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0110 to hexadecimal",
+      "correctAnswer": "6",
+      "options": ["4", "5", "6", "7"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 1001 to hexadecimal",
+      "correctAnswer": "9",
+      "options": ["7", "8", "9", "A"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert binary 0010 to hexadecimal",
+      "correctAnswer": "2",
+      "options": ["0", "1", "2", "3"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0xA to binary",
+      "correctAnswer": "1010",
+      "options": ["1000", "1001", "1010", "1011"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0xF to binary",
+      "correctAnswer": "1111",
+      "options": ["1101", "1110", "1111", "10000"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0xC to binary",
+      "correctAnswer": "1100",
+      "options": ["1010", "1011", "1100", "1101"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0xE to binary",
+      "correctAnswer": "1110",
+      "options": ["1100", "1101", "1110", "1111"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0xD to binary",
+      "correctAnswer": "1101",
+      "options": ["1011", "1100", "1101", "1110"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0x7 to binary",
+      "correctAnswer": "0111",
+      "options": ["0101", "0110", "0111", "1000"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0x3 to binary",
+      "correctAnswer": "0011",
+      "options": ["0001", "0010", "0011", "0100"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0x8 to binary",
+      "correctAnswer": "1000",
+      "options": ["0110", "0111", "1000", "1001"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0x5 to binary",
+      "correctAnswer": "0101",
+      "options": ["0011", "0100", "0101", "0110"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0x4 to binary",
+      "correctAnswer": "0100",
+      "options": ["0010", "0011", "0100", "0101"],
+      "type": "multiple-choice"
+    },
+    {
+      "question": "Convert 0x6 to binary",
+      "correctAnswer": "0110",
+      "options": ["0100", "0101", "0110", "0111"],
+      "type": "multiple-choice"
+    }
+  ]
+}

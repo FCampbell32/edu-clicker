@@ -7,8 +7,12 @@ function HomePage() {
   const [energy, setEnergy] = useState(100); // Max energy
   const [showQuestion, setShowQuestion] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [customQuestions, setCustomQuestions] = useState(null);
   const [feedback, setFeedback] = useState({ message: '', type: '', show: false });
   const [notifications, setNotifications] = useState([]);
+  const [answerStreak, setAnswerStreak] = useState(0);
+  const [lastWrongAnswer, setLastWrongAnswer] = useState(0);
+  const [questionCooldown, setQuestionCooldown] = useState(false);
 
   // Notification system
   const addNotification = (message, type = 'success') => {
@@ -17,6 +21,35 @@ function HomePage() {
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
     }, 3000);
+  };
+
+  // Handle file upload
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      
+      // Validate the file format
+      if (!data.questions || !Array.isArray(data.questions)) {
+        throw new Error('Invalid file format: missing questions array');
+      }
+
+      // Validate each question
+      data.questions.forEach((q, i) => {
+        if (!q.question || !q.correctAnswer || !q.options || !Array.isArray(q.options)) {
+          throw new Error(`Invalid question format at index ${i}`);
+        }
+      });
+
+      setCustomQuestions(data);
+      addNotification(`Loaded ${data.questions.length} questions from "${data.title}"`, 'success');
+    } catch (error) {
+      addNotification('Error loading questions: ' + error.message, 'error');
+      console.error('Error loading questions:', error);
+    }
   };
 
   // Generate a random math question
@@ -62,6 +95,40 @@ function HomePage() {
       options: options.sort(() => Math.random() - 0.5).map(String),
       correctAnswer: String(answer)
     };
+  };
+
+  // Load questions from JSON file on component mount
+  useEffect(() => {
+    const loadQuestions = async () => {
+      try {
+        const response = await fetch('/number-systems.json');
+        if (!response.ok) {
+          throw new Error('Failed to load questions file');
+        }
+        const data = await response.json();
+        if (!data || !data.questions || !Array.isArray(data.questions)) {
+          throw new Error('Invalid questions format');
+        }
+        setCustomQuestions(data);
+        addNotification(`Loaded ${data.questions.length} questions from "${data.title}"`, 'success');
+      } catch (error) {
+        console.error('Error loading questions:', error);
+        // Don't show warning if it's the first load
+        if (customQuestions !== null) {
+          addNotification('Error loading questions. Using math questions instead.', 'warning');
+        }
+      }
+    };
+    loadQuestions();
+  }, []);
+
+  // Modified to use math questions as fallback
+  const generateQuestion = () => {
+    if (customQuestions && customQuestions.questions && customQuestions.questions.length > 0) {
+      const randomIndex = Math.floor(Math.random() * customQuestions.questions.length);
+      return customQuestions.questions[randomIndex];
+    }
+    return generateMathQuestion();
   };
 
   const [upgrades, setUpgrades] = useState({
@@ -120,7 +187,12 @@ function HomePage() {
   };
 
   const handleStartQuestion = () => {
-    const newQuestion = generateMathQuestion();
+    // Check if user is in cooldown
+    if (questionCooldown) {
+      addNotification('Please wait before trying again!', 'warning');
+      return;
+    }
+    const newQuestion = generateQuestion();
     setCurrentQuestion(newQuestion);
     setShowQuestion(true);
   };
@@ -131,16 +203,36 @@ function HomePage() {
   };
 
   const handleAnswerQuestion = (selectedAnswer) => {
+    const now = Date.now();
+    
     if (selectedAnswer === currentQuestion.correctAnswer) {
-      setEnergy(prev => Math.min(getMaxEnergy(), prev + 25)); // Reduced from 50 to 25
-      addNotification('+25 energy', 'success');
+      // Correct answer: Award energy based on streak
+      const streakBonus = Math.min(answerStreak * 5, 25); // Cap bonus at 25
+      const energyGain = 25 + streakBonus;
+      setEnergy(prev => Math.min(getMaxEnergy(), prev + energyGain));
+      setAnswerStreak(prev => prev + 1);
+      addNotification(`+${energyGain} energy! Streak: ${answerStreak + 1}`, 'success');
     } else {
-      setEnergy(prev => Math.min(getMaxEnergy(), prev + 5)); // Reduced from 10 to 5
-      addNotification('+5 energy', 'warning');
+      // Wrong answer: Penalize and reset streak
+      const timeSinceLastWrong = now - lastWrongAnswer;
+      
+      // If answering wrong too quickly, increase penalty and add cooldown
+      if (timeSinceLastWrong < 2000) { // 2 seconds
+        setEnergy(prev => Math.max(0, prev - 15)); // Bigger penalty for spam
+        setQuestionCooldown(true);
+        setTimeout(() => setQuestionCooldown(false), 5000); // 5 second cooldown
+        addNotification('-15 energy! Too many wrong answers!', 'warning');
+      } else {
+        setEnergy(prev => Math.max(0, prev - 5)); // Normal wrong answer penalty
+        addNotification('-5 energy', 'warning');
+      }
+      
+      setLastWrongAnswer(now);
+      setAnswerStreak(0);
     }
     
     // Generate new question immediately
-    const newQuestion = generateMathQuestion();
+    const newQuestion = generateQuestion();
     setCurrentQuestion(newQuestion);
   };
 
@@ -296,16 +388,21 @@ function HomePage() {
                 <div className="text-white text-sm mt-2 mb-1">
                   Energy: {Math.floor(energy)}/{getMaxEnergy()}
                 </div>
+                {answerStreak > 0 && (
+                  <div className="text-green-400 text-sm">
+                    🔥 Streak: {answerStreak}
+                  </div>
+                )}
               </div>
 
               {/* Question Button */}
               <button
                 onClick={handleStartQuestion}
-                disabled={showQuestion}
+                disabled={showQuestion || questionCooldown}
                 className={`bg-amber-600 hover:bg-amber-500 text-white px-6 py-2.5 rounded transition-colors whitespace-nowrap
-                  ${showQuestion ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  ${(showQuestion || questionCooldown) ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Answer Questions
+                {questionCooldown ? 'Cooling down...' : 'Answer Questions'}
               </button>
             </div>
           </div>
@@ -366,7 +463,9 @@ function HomePage() {
           <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-30 transition-opacity duration-300">
             <div className="bg-slate-800 p-8 rounded-lg shadow-xl max-w-md w-full transform transition-all duration-300 scale-100 opacity-100">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-amber-400">Math Question</h2>
+                <h2 className="text-2xl font-bold text-amber-400">
+                  {customQuestions ? customQuestions.title : 'Math Question'}
+                </h2>
                 <button
                   onClick={handleCloseQuestion}
                   className="text-slate-400 hover:text-white transition-colors"
