@@ -4,36 +4,144 @@ import Head from 'next/head';
 function HomePage() {
   const [cookies, setCookies] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [energy, setEnergy] = useState(100); // Max energy
+  const [showQuestion, setShowQuestion] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [feedback, setFeedback] = useState({ message: '', type: '', show: false });
+  const [notifications, setNotifications] = useState([]);
+
+  // Notification system
+  const addNotification = (message, type = 'success') => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 3000);
+  };
+
+  // Generate a random math question
+  const generateMathQuestion = () => {
+    const operators = ['+', '-', '*', '/'];
+    const operator = operators[Math.floor(Math.random() * operators.length)];
+    let num1, num2, answer;
+    
+    switch(operator) {
+      case '+':
+        num1 = Math.floor(Math.random() * 10) + 1; // Simplified numbers
+        num2 = Math.floor(Math.random() * 10) + 1;
+        answer = num1 + num2;
+        break;
+      case '-':
+        num1 = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * num1) + 1;
+        answer = num1 - num2;
+        break;
+      case '*':
+        num1 = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * 10) + 1;
+        answer = num1 * num2;
+        break;
+      case '/':
+        num2 = Math.floor(Math.random() * 5) + 1; // Smaller numbers for division
+        answer = Math.floor(Math.random() * 5) + 1;
+        num1 = num2 * answer;
+        break;
+    }
+
+    const options = [answer];
+    while (options.length < 4) {
+      const offset = Math.floor(Math.random() * 5) + 1;
+      const wrongAnswer = answer + (Math.random() < 0.5 ? offset : -offset);
+      if (!options.includes(wrongAnswer) && wrongAnswer >= 0) {
+        options.push(wrongAnswer);
+      }
+    }
+
+    return {
+      question: `What is ${num1} ${operator} ${num2}?`,
+      options: options.sort(() => Math.random() - 0.5).map(String),
+      correctAnswer: String(answer)
+    };
+  };
+
   const [upgrades, setUpgrades] = useState({
-    doubleClick: { count: 0, cost: 10, multiplier: 2, name: 'Double Click', desc: 'Click twice as fast', emoji: '👆' },
-    megaClick: { count: 0, cost: 50, multiplier: 5, name: 'Mega Click', desc: 'Super powered clicks', emoji: '💪' },
-    goldFingers: { count: 0, cost: 200, multiplier: 10, name: 'Golden Fingers', desc: 'Your clicks are worth more', emoji: '✨' },
-    sugarRush: { count: 0, cost: 500, multiplier: 25, name: 'Sugar Rush', desc: 'Super-charged clicking', emoji: '⚡' },
-    doubleProduction: { count: 0, cost: 2500, buildingBoost: 2, name: 'Double Production', desc: 'All buildings produce twice as much', emoji: '⚡' },
-    cookieAlchemy: { count: 0, cost: 5000, multiplier: 100, name: 'Cookie Alchemy', desc: 'Turn regular cookies into golden ones', emoji: '✨' }
-  });
-  const [buildings, setBuildings] = useState({
-    grandma: { count: 0, cost: 100, cps: 1, name: 'Grandma', desc: 'A nice grandma to bake cookies', emoji: '👵' },
-    mine: { count: 0, cost: 500, cps: 5, name: 'Cookie Mine', desc: 'Dig deep for cookie dough', emoji: '⛏️' },
-    factory: { count: 0, cost: 2000, cps: 25, name: 'Cookie Factory', desc: 'Mass produce cookies', emoji: '🏭' },
-    farm: { count: 0, cost: 1000, cps: 8, name: 'Cookie Farm', desc: 'Grow cookie trees', emoji: '🌱' },
-    lab: { count: 0, cost: 5000, cps: 50, name: 'Cookie Lab', desc: 'Research better cookie production', emoji: '🧪' },
-    temple: { count: 0, cost: 10000, cps: 100, name: 'Cookie Temple', desc: 'Pray to the cookie gods', emoji: '⛪' },
-    wizard: { count: 0, cost: 25000, cps: 250, name: 'Cookie Wizard', desc: 'Magic cookie spells', emoji: '🧙' },
-    shipment: { count: 0, cost: 50000, cps: 500, name: 'Cookie Shipment', desc: 'Import cookies from the cookie planet', emoji: '🚀' },
-    alchemy: { count: 0, cost: 100000, cps: 1000, name: 'Cookie Alchemy Lab', desc: 'Transform matter into cookies', emoji: '⚗️' },
-    portal: { count: 0, cost: 500000, cps: 5000, name: 'Cookie Portal', desc: 'Connect to the cookieverse', emoji: '🌀' }
+    // Click-related upgrades - adjusted for better early game
+    doubleClick: { count: 0, cost: 15, multiplier: 1, name: 'Double Click', desc: 'Increase click value by 1', emoji: '👆' },
+    megaClick: { count: 0, cost: 100, multiplier: 2, name: 'Mega Click', desc: 'Increase click value by 2', emoji: '💪' },
+    goldFingers: { count: 0, cost: 500, multiplier: 5, name: 'Golden Fingers', desc: 'Increase click value by 5', emoji: '✨' },
+    sugarRush: { count: 0, cost: 2000, multiplier: 10, name: 'Sugar Rush', desc: 'Increase click value by 10', emoji: '⚡' },
+    doubleProduction: { count: 0, cost: 5000, buildingBoost: 1, name: 'Double Production', desc: 'Buildings produce 100% more', emoji: '⚡' },
+    cookieAlchemy: { count: 0, cost: 10000, multiplier: 50, name: 'Cookie Alchemy', desc: 'Increase click value by 50', emoji: '✨' },
+    
+    // Energy upgrades - rebalanced for progression
+    energyEfficiency: { count: 0, cost: 75, energyBoost: 0.1, name: 'Energy Efficiency', desc: 'Reduce energy cost per click by 10%', emoji: '🔋' },
+    energyCapacity: { count: 0, cost: 200, capacityBoost: 20, name: 'Energy Capacity', desc: 'Increase max energy by 20', emoji: '⚡' },
+    energyRegen: { count: 0, cost: 1000, regenAmount: 0.2, name: 'Energy Regeneration', desc: 'Regenerate 0.2 energy per second', emoji: '♻️' }
   });
 
+  const [buildings, setBuildings] = useState({
+    // Buildings rebalanced for smoother progression
+    grandma: { count: 0, cost: 50, cps: 0.2, name: 'Grandma', desc: 'A nice grandma to bake cookies', emoji: '👵' },
+    mine: { count: 0, cost: 200, cps: 1, name: 'Cookie Mine', desc: 'Dig deep for cookie dough', emoji: '⛏️' },
+    farm: { count: 0, cost: 750, cps: 4, name: 'Cookie Farm', desc: 'Grow cookie trees', emoji: '🌱' },
+    factory: { count: 0, cost: 2500, cps: 15, name: 'Cookie Factory', desc: 'Mass produce cookies', emoji: '🏭' },
+    lab: { count: 0, cost: 7500, cps: 40, name: 'Cookie Lab', desc: 'Research better cookie production', emoji: '🧪' },
+    temple: { count: 0, cost: 15000, cps: 100, name: 'Cookie Temple', desc: 'Pray to the cookie gods', emoji: '⛪' },
+    wizard: { count: 0, cost: 50000, cps: 300, name: 'Cookie Wizard', desc: 'Magic cookie spells', emoji: '🧙' },
+    shipment: { count: 0, cost: 150000, cps: 1000, name: 'Cookie Shipment', desc: 'Import cookies from the cookie planet', emoji: '🚀' },
+    alchemy: { count: 0, cost: 500000, cps: 3000, name: 'Cookie Alchemy Lab', desc: 'Transform matter into cookies', emoji: '⚗️' },
+    portal: { count: 0, cost: 1500000, cps: 10000, name: 'Cookie Portal', desc: 'Connect to the cookieverse', emoji: '🌀' }
+  });
+
+  const getMaxEnergy = () => 100 + (upgrades.energyCapacity.count * upgrades.energyCapacity.capacityBoost);
+
+  const getEnergyCostPerClick = () => {
+    const baseEnergyCost = 2; // Reduced from 5 to 2 for better early game
+    const reduction = upgrades.energyEfficiency.count * upgrades.energyEfficiency.energyBoost;
+    return Math.max(0.2, baseEnergyCost * (1 - reduction)); // Minimum 0.2 energy cost
+  };
+
   const handleClick = () => {
+    const energyCost = getEnergyCostPerClick();
+    if (energy < energyCost) {
+      return; // Just return if not enough energy, don't show question
+    }
+
     const multiplier = (upgrades.doubleClick.count * upgrades.doubleClick.multiplier) +
                       (upgrades.megaClick.count * upgrades.megaClick.multiplier) +
                       (upgrades.goldFingers.count * upgrades.goldFingers.multiplier) +
                       (upgrades.sugarRush.count * upgrades.sugarRush.multiplier) +
                       (upgrades.cookieAlchemy.count * upgrades.cookieAlchemy.multiplier) + 1;
+
     setCookies(prev => prev + multiplier);
+    setEnergy(prev => Math.max(0, prev - energyCost));
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 100);
+  };
+
+  const handleStartQuestion = () => {
+    const newQuestion = generateMathQuestion();
+    setCurrentQuestion(newQuestion);
+    setShowQuestion(true);
+  };
+
+  const handleCloseQuestion = () => {
+    setShowQuestion(false);
+    setCurrentQuestion(null);
+  };
+
+  const handleAnswerQuestion = (selectedAnswer) => {
+    if (selectedAnswer === currentQuestion.correctAnswer) {
+      setEnergy(prev => Math.min(getMaxEnergy(), prev + 25)); // Reduced from 50 to 25
+      addNotification('+25 energy', 'success');
+    } else {
+      setEnergy(prev => Math.min(getMaxEnergy(), prev + 5)); // Reduced from 10 to 5
+      addNotification('+5 energy', 'warning');
+    }
+    
+    // Generate new question immediately
+    const newQuestion = generateMathQuestion();
+    setCurrentQuestion(newQuestion);
   };
 
   const buyUpgrade = (type) => {
@@ -87,7 +195,7 @@ function HomePage() {
       
       if (offlineEarnings > 0) {
         setCookies(prev => prev + offlineEarnings);
-        alert(`Welcome back! You earned ${offlineEarnings} cookies while away!`);
+        addNotification(`Welcome back! You earned ${offlineEarnings} cookies while away!`, 'success');
       }
     }
 
@@ -114,85 +222,174 @@ function HomePage() {
   return (
     <>
       <Head>
-        <title>Cookie Clicker Game</title>
+        <title>Cookie Clicker</title>
         <link
           rel="icon"
           href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍪</text></svg>"
         />
       </Head>
-      <div className="flex min-h-screen bg-slate-900 overflow-hidden">
-        <div className="w-64 bg-slate-800/50 p-4 overflow-y-auto scrollbar-hidden h-screen backdrop-blur-sm">
-          <h2 className="text-xl font-bold text-amber-400 mb-3">Buildings</h2>
-          {Object.entries(buildings).map(([key, building]) => (
-            <button
-              key={key}
-              onClick={() => buyBuilding(key)}
-              disabled={cookies < building.cost}
-              className={`w-full mb-2 p-2 rounded text-left transition-all duration-200 ${
-                cookies >= building.cost 
-                  ? 'bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg hover:shadow-amber-900/20' 
-                  : 'bg-slate-700/50 text-slate-400'
-              }`}
-            >
-              <div className="font-bold flex items-center gap-2">
-                <span className="text-xl filter drop-shadow">{building.emoji}</span>
-                {building.name}
-              </div>
-              <div className="text-sm opacity-90">Owned: {building.count}</div>
-              <div className="text-sm opacity-90">CPS: {building.cps}</div>
-              <div className="text-sm opacity-90">Cost: {Math.floor(building.cost)} cookies</div>
-              <div className="text-xs text-slate-300/75">{building.desc}</div>
-            </button>
-          ))}
-        </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center px-8">
-          <div className="flex flex-col items-center justify-center flex-1">
-            <h1 className="text-6xl font-bold text-amber-400 mb-8 drop-shadow-lg">
-              Cookie Clicker
-            </h1>
-            <div className="text-4xl text-white mb-8 drop-shadow">
-              Cookies: {Math.floor(cookies)}
-            </div>
-            <div className="text-xl text-slate-400 mb-6">
-              per second: {(Object.values(buildings).reduce(
-                (acc, building) => acc + calculateBuildingProduction(building), 0
-              )).toFixed(1)}
-            </div>
-            <button
-              onClick={handleClick}
-              className={`text-[150px] cursor-pointer transform transition-all duration-100 
-                hover:scale-110 active:scale-95 ${isAnimating ? 'scale-95' : 'scale-100'}
-                filter drop-shadow-2xl hover:drop-shadow-[0_0_25px_rgba(251,191,36,0.2)]`}
-            >
-              🍪
-            </button>
+      {/* Notification System */}
+      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+        {notifications.map(notification => (
+          <div
+            key={notification.id}
+            className={`px-4 py-2 rounded-lg shadow-lg transition-all duration-300 transform 
+              ${notification.type === 'success' ? 'bg-green-600' : 'bg-yellow-600'}`}
+          >
+            <span className="text-white font-medium">{notification.message}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex h-screen bg-slate-900 overflow-hidden">
+        {/* Left sidebar - Scrollable */}
+        <div className="w-64 bg-slate-800/50 overflow-y-auto scrollbar-hidden">
+          <div className="p-4">
+            <h2 className="text-xl font-bold text-amber-400 mb-3">Buildings</h2>
+            {Object.entries(buildings).map(([key, building]) => (
+              <button
+                key={key}
+                onClick={() => buyBuilding(key)}
+                disabled={cookies < building.cost}
+                className={`w-full mb-2 p-2 rounded text-left transition-all duration-200 ${
+                  cookies >= building.cost 
+                    ? 'bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg hover:shadow-amber-900/20' 
+                    : 'bg-slate-700/50 text-slate-400'
+                }`}
+              >
+                <div className="font-bold flex items-center gap-2">
+                  <span className="text-xl filter drop-shadow">{building.emoji}</span>
+                  {building.name}
+                </div>
+                <div className="text-sm opacity-90">Owned: {building.count}</div>
+                <div className="text-sm opacity-90">CPS: {building.cps}</div>
+                <div className="text-sm opacity-90">Cost: {Math.floor(building.cost)} cookies</div>
+                <div className="text-xs text-slate-300/75">{building.desc}</div>
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="w-64 bg-slate-800/50 p-4 overflow-y-auto scrollbar-hidden h-screen backdrop-blur-sm">
-          <h2 className="text-xl font-bold text-amber-400 mb-3">Upgrades</h2>
-          {Object.entries(upgrades).map(([key, upgrade]) => (
-            <button
-              key={key}
-              onClick={() => buyUpgrade(key)}
-              disabled={cookies < upgrade.cost}
-              className={`w-full mb-2 p-2 rounded text-left transition-all duration-200 ${
-                cookies >= upgrade.cost 
-                  ? 'bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg hover:shadow-amber-900/20' 
-                  : 'bg-slate-700/50 text-slate-400'
-              }`}
-            >
-              <div className="font-bold flex items-center gap-2">
-                <span className="text-xl filter drop-shadow">{upgrade.emoji}</span>
-                {upgrade.name}
+        {/* Main content - Fixed */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Stats Bar */}
+          <div className="bg-slate-800/90 backdrop-blur-sm p-4 border-b border-slate-700">
+            <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="text-2xl text-white mb-1">
+                  🍪 {Math.floor(cookies)}
+                </div>
+                <div className="text-sm text-slate-400">
+                  per second: {calculateTotalCps().toFixed(1)}
+                </div>
               </div>
-              <div className="text-sm opacity-90">Owned: {upgrade.count}</div>
-              <div className="text-sm opacity-90">Cost: {upgrade.cost} cookies</div>
-              <div className="text-xs text-slate-300/75">{upgrade.desc}</div>
+
+              {/* Energy Section */}
+              <div className="flex-1 mr-4">
+                <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-500 transition-all duration-300"
+                    style={{ width: `${(energy / getMaxEnergy()) * 100}%` }}
+                  />
+                </div>
+                <div className="text-white text-sm mt-2 mb-1">
+                  Energy: {Math.floor(energy)}/{getMaxEnergy()}
+                </div>
+              </div>
+
+              {/* Question Button */}
+              <button
+                onClick={handleStartQuestion}
+                disabled={showQuestion}
+                className={`bg-amber-600 hover:bg-amber-500 text-white px-6 py-2.5 rounded transition-colors whitespace-nowrap
+                  ${showQuestion ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                Answer Questions
+              </button>
+            </div>
+          </div>
+
+          {/* Game Area - Fixed position */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <h1 className="text-6xl font-bold text-amber-400 mb-8 drop-shadow-lg">
+              Cookie Clicker
+            </h1>
+
+            {/* Cookie Button */}
+            <button
+              onClick={handleClick}
+              disabled={energy < getEnergyCostPerClick()}
+              className={`text-[150px] cursor-pointer transform transition-all duration-100 
+                hover:scale-110 active:scale-95 ${isAnimating ? 'scale-95' : 'scale-100'}
+                filter drop-shadow-2xl hover:drop-shadow-[0_0_25px_rgba(251,191,36,0.2)]
+                ${energy < getEnergyCostPerClick() ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              🍪
             </button>
-          ))}
+            
+            <div className="text-white mt-4 text-sm">
+              Energy cost per click: {getEnergyCostPerClick().toFixed(1)}
+            </div>
+          </div>
         </div>
+
+        {/* Right sidebar - Scrollable */}
+        <div className="w-64 bg-slate-800/50 overflow-y-auto scrollbar-hidden">
+          <div className="p-4">
+            <h2 className="text-xl font-bold text-amber-400 mb-3">Upgrades</h2>
+            {Object.entries(upgrades).map(([key, upgrade]) => (
+              <button
+                key={key}
+                onClick={() => buyUpgrade(key)}
+                disabled={cookies < upgrade.cost}
+                className={`w-full mb-2 p-2 rounded text-left transition-all duration-200 ${
+                  cookies >= upgrade.cost 
+                    ? 'bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white shadow-lg hover:shadow-amber-900/20' 
+                    : 'bg-slate-700/50 text-slate-400'
+                }`}
+              >
+                <div className="font-bold flex items-center gap-2">
+                  <span className="text-xl filter drop-shadow">{upgrade.emoji}</span>
+                  {upgrade.name}
+                </div>
+                <div className="text-sm opacity-90">Owned: {upgrade.count}</div>
+                <div className="text-sm opacity-90">Cost: {upgrade.cost} cookies</div>
+                <div className="text-xs text-slate-300/75">{upgrade.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Question Panel - Animated overlay */}
+        {showQuestion && (
+          <div className="fixed inset-0 bg-slate-900/75 flex items-center justify-center z-30 transition-opacity duration-300">
+            <div className="bg-slate-800 p-8 rounded-lg shadow-xl max-w-md w-full transform transition-all duration-300 scale-100 opacity-100">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-amber-400">Math Question</h2>
+                <button
+                  onClick={handleCloseQuestion}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="text-xl text-white mb-6">{currentQuestion?.question}</div>
+              <div className="grid grid-cols-2 gap-4">
+                {currentQuestion?.options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswerQuestion(option)}
+                    className="bg-amber-600 hover:bg-amber-500 text-white p-4 rounded transition-colors text-lg"
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
